@@ -1,0 +1,121 @@
+---
+title: "Functions"
+author: "Gabe Runte"
+date: "2023-01-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+## What is a function? 
+Here, I am copying some language from the very useful [R for Data Science](https://r4ds.had.co.nz/functions.html) online resource. If you would like more in-depth information about functions (or a variety of other topics), please follow the link. 
+
+
+Functions allow you to automate common tasks in a more powerful and general way than copy-and-pasting. Writing a function has three big advantages over using copy-and-paste:
+
+1. You can give a function an evocative name that makes your code easier to understand.
+
+2. As requirements change, you **only need to update code in one place**, instead of many.
+
+3. You eliminate the chance of making incidental mistakes when you copy and paste (i.e. updating a variable name in one place, but not in another).
+
+
+### Let's jump right in and start coding
+First, we need to choose a task we are aiming to streamline. Let's start small by writing a function that returns the cubed ( $X^3$) value of its input.
+```{r}
+# choosing a name for our function
+cube_it = # call the function() command and choose the names of our arguments
+  function(number) { # open curly brackets
+    number^3 # call that argument we named and perform the maths
+  }
+
+answer = cube_it( )
+```
+
+It is important to note that there is nothing special about the argument name we used here. You could just as well require a tasty breakfast pastry to perform a similar *function*. 
+```{r}
+to_the_fourth = function(croissant) {
+  croissant^4 }
+
+to_the_fourth( )
+```
+
+
+Alright, let's try an example that may be of a bit more value to the group. Imagine, for a moment, that you are workingh with trees and have taken the diameter at breast height (DBH) of all of the individuals in your study. Great work! But you also know that it is important to know have both the circumference of the trunk and the area in cross-section. You don't want to have to double check your geometry memory every time you work with a new datasheet so let's go ahead and write a couple of functions to stop ourselves from making any silly mistakes. 
+```{r}
+#first, lets generate some data
+trees = tibble(
+  id = seq(1001,1100, by = 1), # i like all of my id #'s to be of the same length
+  species = rep(c("QUAG", "QUDO"), length.out = length(id)),
+  dbh = round(rnorm(length(id), mean = 30, sd = 10), 1)
+)
+
+dbh2area = function(dbh){
+  round(pi*(dbh/2)^2, 2)
+}
+
+dbh2circ = function(dbh){
+  round(pi*dbh,2)
+}
+
+
+trees_full = trees %>% 
+  mutate(trunk_cross = dbh2area(dbh)) %>% 
+  mutate(circumference = dbh2circ(dbh))
+
+```
+
+
+
+Below is an example of where we can save ourselves from making accidental copy/paste mistakes (edited from R for Data Science). 
+
+```{r}
+# we start my making up some data to work with
+df <- tibble::tibble(
+  a = rnorm(10),
+  b = rnorm(10),
+  c = rnorm(10),
+  d = rnorm(10)
+)
+
+# A common data transformation is to normalize one's data. This can be an easier way to understand where a specific data point falls within the range of observed values. We often do so by constraining the values between zero and one with a formula similar to the following: 
+
+df$a <- (df$a - min(df$a, na.rm = TRUE)) / 
+  (max(df$a, na.rm = TRUE) - min(df$a, na.rm = TRUE))
+df$b <- (df$b - min(df$b, na.rm = TRUE)) / 
+  (max(df$b, na.rm = TRUE) - min(df$a, na.rm = TRUE))
+df$c <- (df$c - min(df$c, na.rm = TRUE)) / 
+  (max(df$c, na.rm = TRUE) - min(df$c, na.rm = TRUE))
+df$d <- (df$d - min(df$d, na.rm = TRUE)) / 
+  (max(df$d, na.rm = TRUE) - min(df$d, na.rm = TRUE))
+
+#Do you see where we went wrong? Hint: did we forget to update our column after copy/pasting anywhere? 
+
+#How might we write a function to avoid this error? 
+
+
+normalize = function(){
+  
+}
+
+df <- tibble::tibble(
+  a = rnorm(10),
+  b = rnorm(10),
+  c = rnorm(10),
+  d = rnorm(10)
+) %>% 
+  mutate(a = normalize(a))%>% 
+  mutate(b = normalize(b))%>% 
+  mutate(c = normalize(c))%>% 
+  mutate(d = normalize(d))
+
+
+
+```
+

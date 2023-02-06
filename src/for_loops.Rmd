@@ -1,0 +1,107 @@
+---
+title: "for() loops"
+author: "Gabe Runte"
+date: "2023-01-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+source("my_functions.R")
+setup_libs()
+```
+
+## for() loops! 
+
+The for() loop is a very useful and versatile tool in basic programming. They allow us to perform tasks over and over again without retyping or rerunning code! They are ubiquitous across languages (R, python, java, etc.) so making friends with the structure can pay even bigger dividends if you may have to perform tasks ourside of R as well. 
+
+
+### Intro to loops
+```{r}
+x = seq(0, 100, by = 10) 
+x
+y = numeric() #empty vector for our for() loop to fill
+y
+
+# We'll start by writing a for() loop that iterates over the entirety of the vector we just created
+for(i in 1:length(x)){
+ y[i]= x[i] +5  # for each position (i) in the vector x, add 5 and save it to the corresponding position in vector y
+}
+
+y
+
+# "But we could have just done that with vector math in R! Why do we need a for()loop for that?" You don't. But it's useful to get to know the structure first!  
+x+5
+```
+
+```{r, message = F}
+#let's try something a bit more practical
+
+
+asv = read_data("asv_table.csv") %>% #woohoo! we get to use another one of our custom functions
+  rename(seq = x1) %>% 
+  select(1:101) %>% 
+  slice(1:500)
+
+asv_num = asv %>% 
+  select(!seq)
+
+asv_table = as.matrix(asv_num, ncol = ncol(asv_num), nrow = nrow(asv_num))
+row.names(asv_table) = asv$seq
+
+dim(asv_table)
+head(asv_table)
+
+asv_rra = matrix(nrow = nrow(asv_table), ncol = ncol(asv_table)) #setup empty matrix to hold our new data
+
+dim(asv_rra)
+for(i in 1:ncol(asv_table)){
+  sum = sum(asv_table[,i])
+  
+  asv_rra[,i] = asv_table[,i]/sum
+}
+
+
+```
+
+## We also use for() loops for simulating systems of ordinary differential equations for modeling!
+
+Here are the famous Lotka-Volterra predator-prey equations
+$$
+\begin{eqnarray}
+\frac{dP}{dt} &=& gP - aPN \\[2ex]
+\frac{dN}{dt} &=& acPN - mN\\[2ex]
+\end{eqnarray}
+$$
+
+```{r}
+time_set = seq(0, 500, by = 0.01)
+g = 0.5  # prey growth rate
+a = 0.05 # attack rate
+c = 0.25 # conversion efficiency
+m = 0.05 # mortality
+
+p.set = NaN*length(time_set); p.set[1]= 100
+n.set = NaN*length(time_set); n.set[1]= 10
+
+for(i in 2:length(time_set)){ # we do not always need to reference an entire vector but can instead use partial vectors!
+  dt = time_set[i]-time_set[i-1] # look! we can reference past iterations
+  p = p.set[i-1]
+  n = n.set[i-1]
+  
+  dp =(g*p - a*p*n)*dt
+  dn =(a*c*p*n - m*n)*dt
+  
+  p.set[i]= p+dp
+  n.set[i]= n+dn
+  
+}
+
+plot(time_set, p.set, type = "l", col = "darkblue", lwd = 3, xlab = "Time", ylab = "Population size", ylim = c(0, 140))
+lines(time_set, n.set, col = "orange", lwd = 3)
+legend(350, 140, legend = c("Prey", "Predator"),col=c("darkblue", "orange"), cex = 1, lty = 1, lwd = 3)
+
+```
+
+
