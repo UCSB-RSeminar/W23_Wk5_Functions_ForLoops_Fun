@@ -98,10 +98,8 @@ for(i in 2:length(time_set)){ # we do not always need to reference an entire vec
   
 }
 
-plot(time_set, p.set, type = "l", col = "darkblue", lwd = 3, xlab = "Time", ylab = "Population size", ylim = c(0, 140))
-lines(time_set, n.set, col = "orange", lwd = 3)
-legend(350, 140, legend = c("Prey", "Predator"),col=c("darkblue", "orange"), cex = 1, lty = 1, lwd = 3)
 
+sim_plot(time_set, pred = n.set, prey= p.set)
 ```
 
 
